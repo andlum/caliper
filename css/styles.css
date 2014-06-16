@@ -1,0 +1,66 @@
+html, body {
+  height: 100%;
+  color: #F5F7FA;
+}
+
+.hidden {visibility: hidden;}
+
+header {
+  position: relative;
+  height: 70px;
+  padding: 1em;
+  background-color: #4A89DC;
+}
+
+header h2 {margin: 0 0 .5em;}
+
+.instructions span {
+  display: none;
+  position: absolute;
+  right: .5em;
+  top: 1em;
+  z-index: 1;
+  width: 200px;
+  padding: 5px;
+  color: #F5F7FA;
+  background: #48CFAD;
+  border-radius: 10px;
+}
+
+.instructions {
+  position: absolute;
+  right: 2em;
+  top: 2em;
+  height: 12px;
+  width: 12px;
+  background: #CCD1D9;
+  border: 2px solid #AAB2BD;
+  border-radius: 50%;
+  color: #F5F7FA;
+  text-align: center;
+  font-size: 12px;
+}
+
+.instructions:hover span {
+  display: block;
+  text-align: center;
+}
+
+input[type="text"] {
+  text-align: center;
+  width: 45px;
+  border: 0;
+  border-bottom: 1px solid #F5F7FA;
+  background-color: #4A89DC;
+}
+
+#map {height: calc(100% - 70px);}
+
+.ui-autocomplete {
+  max-height: 400px;
+  overflow-y: scroll;
+}
+
+.ui-menu .ui-menu-item {
+  font-size: .75em;
+}
