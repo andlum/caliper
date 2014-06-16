@@ -16,7 +16,7 @@ $(document).ready(function() {
   var markers = {};
 
   /* Grab data from local JSON file and attach autocomplete */
-  $.getJSON("/data/airports.json", function(data) {
+  $.getJSON("data/airports.json", function(data) {
     $.each(data, function(k, v){
       if (v.type == "Airports" && v.country == "United States") {
         airports.push({
