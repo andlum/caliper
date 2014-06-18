@@ -60,7 +60,12 @@ $(document).ready(function() {
         route = drawRoute();
         this.blur();
       },
-      autoFocus: true
+      autoFocus: true,
+      change: function(event, ui) {
+        if (!ui.item) {
+          this.value = '';
+        }
+      }
     }).each(function(){
       $(this).data('ui-autocomplete')._renderItem = customRender;
     });
