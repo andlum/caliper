@@ -7,13 +7,13 @@ $(document).ready(function() {
     minZoom: 3,
     mapTypeControl: false,
     streetViewControl: false
-  }
+  };
 
   var map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
-  var airports = [];
-  var route;
-  var markers = {};
+  var airports = [],
+      markers = {},
+      route;
 
   /* Grab data from local JSON file and attach autocomplete */
   $.getJSON("data/airports.json", function(data) {
@@ -36,37 +36,32 @@ $(document).ready(function() {
       source: function(request, response) {
         if (request.term.length > 1) {
           // Match to airport code, name, city, state, and icao
-          var term = $.ui.autocomplete.escapeRegex(request.term);
-          var startsWithMatcher = new RegExp("^" + term, "i");
-          var containsMatcher = new RegExp(term, "i");
-          var startsWith = $.grep(airports, function(value) {
-            return results = startsWithMatcher.test(value.value)
-                          || startsWithMatcher.test(value.label)
-                          || startsWithMatcher.test(value.city)
-                          || startsWithMatcher.test(value.icao);
-          });
-          var contains = $.grep(airports, function(value) {
-            return results = containsMatcher.test(value.value)
-                          || containsMatcher.test(value.label)
-                          || containsMatcher.test(value.city)
-                          || containsMatcher.test(value.icao);
-          });
+          var term = $.ui.autocomplete.escapeRegex(request.term),
+              startsWithMatcher = new RegExp("^" + term, "i"),
+              containsMatcher = new RegExp(term, "i"),
+              startsWith = $.grep(airports, function(value) {
+                return startsWithMatcher.test(value.value) ||
+                       startsWithMatcher.test(value.label);
+              }),
+              contains = $.grep(airports, function(value) {
+                return containsMatcher.test(value.value) ||
+                       containsMatcher.test(value.label) ||
+                       containsMatcher.test(value.city) ||
+                       containsMatcher.test(value.icao);
+              });
           response($.unique(startsWith.concat(contains)));
         }
       },
       select: function(event, ui) {
-        markers[this.id] = new google.maps.Marker({
-          position: new google.maps.LatLng(ui.item.latitude, ui.item.longitude),
-          map: map,
-          title: ui.name
-        });
-        if (markers["pointa"] != null && markers["pointb"] != null) {
-          route = drawRoute();
-          getDistance();
-          $(".distance").removeClass("hidden");
-        }
-      }
-    }).each(function(){ // data('ui-autocomplete') only finds first instance
+        // Move to separate function for blur
+        $el = $(this)[0];
+        reset($el);
+        markers[$el.id] = new dropMark($el, ui);
+        route = drawRoute();
+        this.blur();
+      },
+      autoFocus: true
+    }).each(function(){
       $(this).data('ui-autocomplete')._renderItem = customRender;
     });
   });
@@ -81,42 +76,57 @@ $(document).ready(function() {
   }
 
   function drawRoute() {
-    return new google.maps.Polyline({
-      path: [markers["pointa"].position, markers["pointb"].position],
-      geodesic: true,
-      map: map,
-      strokeColor: '#FC6E51',
-      strokeOpacity: 0,
-      strokeWeight: 1,
-      icons: [{
-        icon: {
-          path: 'M 0,-0.5 0,0.5',
-          strokeWeight: 3,
-          strokeOpacity: 1,
-          scale: 3
-        },
-        offset: '100%',
-        repeat: '10px'
-      }]
-    });
+    if (markers["from"] && markers["to"]) {
+      getDistance();
+      return new google.maps.Polyline({
+        path: [markers["from"].position, markers["to"].position],
+        geodesic: true,
+        map: map,
+        strokeColor: '#FC6E51',
+        strokeOpacity: 0,
+        strokeWeight: 1,
+        icons: [{
+          icon: {
+            path: 'M 0,-0.5 0,0.5',
+            strokeWeight: 3,
+            strokeOpacity: 1,
+            scale: 3
+          },
+          offset: '100%',
+          repeat: '10px'
+        }]
+      });
+    }
   }
 
   function getDistance() {
-    var distance = (google.maps.geometry.spherical.computeDistanceBetween(markers["pointa"].position, markers["pointb"].position))/1000;
+    var distance = (google.maps.geometry.spherical.computeDistanceBetween(markers["from"].position, markers["to"].position))/1000;
     $(".kmDistance").html(distance.toFixed(2));
     $(".nmDistance").html((distance/1.852).toFixed(2));
+    $(".distance").removeClass("hidden");
+  }
+
+  function dropMark(el, ui) {
+    return new google.maps.Marker({
+      position: new google.maps.LatLng(ui.item.latitude, ui.item.longitude),
+      map: map,
+      title: ui.item.value
+    });
+  }
+
+  function reset(el) {
+    if (markers[$el.id]) {
+      markers[$el.id].setMap(null);
+    }
+    if (route) {
+      route.setMap(null);
+    }
+    $(".distance").addClass("hidden");
   }
 
   $(".autocomplete").blur(function(){
-    if (!$(this).val()) {
-      $(".distance").addClass("hidden");
-      if (route != null){
-        route.setMap(null);
-      }
-      if (this.id in markers) {
-        markers[this.id].setMap(null);
-        markers[this.id] = null;
-      }
+    if (!this.value) {
+      reset();
     }
   });
 
