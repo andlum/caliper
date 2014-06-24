@@ -36,6 +36,7 @@ $(document).ready(function() {
       source: function(request, response) {
         if (request.term.length > 1) {
           // Match to airport code, name, city, state, and icao
+          // prioritize startsWith over contains
           var term = $.ui.autocomplete.escapeRegex(request.term),
               startsWithMatcher = new RegExp("^" + term, "i"),
               containsMatcher = new RegExp(term, "i"),
