@@ -3,13 +3,11 @@ html, body {
   color: #F5F7FA;
 }
 
-.hidden {visibility: hidden;}
-
 header {
   position: relative;
   height: 70px;
   padding: 1em;
-  background-color: #4A89DC;
+  background-color: #5D9CEC;
 }
 
 header h2 {margin: 0 0 .5em;}
@@ -51,8 +49,14 @@ input[type="text"] {
   width: 45px;
   border: 0;
   border-bottom: 1px solid #F5F7FA;
-  background-color: #4A89DC;
+  background-color: #5D9CEC;
 }
+
+input[type="text"]:focus {
+  outline: none;
+}
+
+.distance { display:none; }
 
 #map {height: calc(100% - 70px);}
 
@@ -61,6 +65,7 @@ input[type="text"] {
   overflow-y: scroll;
 }
 
-.ui-menu .ui-menu-item {
+.ui-autocomplete .ui-menu-item {
   font-size: .75em;
 }
+
